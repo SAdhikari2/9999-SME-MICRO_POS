@@ -22,4 +22,7 @@
     <string name="close_bracket">)</string>
     <string name="open_bracket">(</string>
     <string name="backspace">C</string>
+    <string name="online">Online</string>
+    <string name="cash">Cash</string>
+    <string name="due">Due</string>
 </resources>

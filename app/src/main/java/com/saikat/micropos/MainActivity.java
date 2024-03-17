@@ -1,5 +1,6 @@
 package com.saikat.micropos;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.view.View;
@@ -31,8 +32,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+       super.onCreate(savedInstanceState);
+       setContentView(R.layout.activity_main);
        resultTv = findViewById(R.id.result_tv);
        solutionTv = findViewById(R.id.solution_tv);
 
@@ -80,7 +81,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             return;
         }
         if(buttonText.equals("=")){
-            solutionTv.setText(resultTv.getText());
             return;
         }
         if(buttonText.equals("C")){
@@ -126,12 +126,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     void updateDB(String dataToCalculate, String buttonText) {
+        Intent intent = new Intent(MainActivity.this, PaymentActivity.class);
         transactionHistory = new TransactionHistory(
                 dataToCalculate,
                 buttonText.equals("Cash Out -") ? "-".concat(resultTv.getText().toString()) : resultTv.getText().toString(),
                 buttonText,
                 "Cash",
                 "Paid");
+        intent.putExtra("transactionHistoryKey", transactionHistory);
         db = FirebaseDatabase.getInstance();
         databaseReference = db.getReference("TransactionHistory");
         databaseReference.child(UUID.randomUUID().toString()).setValue(transactionHistory)
@@ -140,6 +142,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     solutionTv.setText("");
                     Toast.makeText(MainActivity.this,"Successfully Updated", Toast.LENGTH_SHORT).show();
                 });
+        startActivity(intent);
     }
 
 }
