@@ -4,18 +4,33 @@ import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.saikat.micropos.databinding.ActivityMainBinding;
+import com.saikat.micropos.persistance.entity.TransactionHistory;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 
+import java.util.UUID;
+
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
-
     TextView resultTv,solutionTv;
+
+    TransactionHistory transactionHistory;
+    ActivityMainBinding binding;
+    String itemValues, totalValue, cashEntry, paymentType, paymentStatus;
+    FirebaseDatabase db;
+    DatabaseReference databaseReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +90,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             dataToCalculate = dataToCalculate.isEmpty() | dataToCalculate.equals("0") ?
                     String.valueOf(0) : dataToCalculate.substring(0,dataToCalculate.length()-1);
         }else{
-            dataToCalculate = dataToCalculate+buttonText;
+            dataToCalculate = buttonText.equals("Cash In +") | buttonText.equals("Cash Out -") ? dataToCalculate :
+                    dataToCalculate+buttonText;
         }
 
         solutionTv.setText(dataToCalculate);
@@ -87,11 +103,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         if(buttonText.equals("Cash In +")){
             solutionTv.setText(resultTv.getText());
+            transactionHistory = new TransactionHistory(
+                    dataToCalculate, resultTv.getText().toString(), "Cash In +", "Cash", "Paid");
+            db = FirebaseDatabase.getInstance();
+            databaseReference = db.getReference("TransactionHistory");
+            databaseReference.child(UUID.randomUUID().toString()).setValue(transactionHistory)
+                    .addOnCompleteListener(task -> {
+                        resultTv.setText("0");
+                        solutionTv.setText("");
+                        Toast.makeText(MainActivity.this,"Successfully Updated", Toast.LENGTH_SHORT).show();
+                    });
             return;
         }
         if(buttonText.equals("Cash Out -")){
             solutionTv.setText(resultTv.getText());
         }
+
+
 
     }
 

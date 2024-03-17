@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "608982338920",
+    "project_id": "micro-pos-59076",
+    "storage_bucket": "micro-pos-59076.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:608982338920:android:268862025729c8ce829add",
+        "android_client_info": {
+          "package_name": "com.saikat.micropos"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBwTLLZk27Om8-6Y5-GVAljp-hTjj9c3S4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
