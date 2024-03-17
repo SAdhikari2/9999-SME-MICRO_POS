@@ -1,4 +1,4 @@
-package easy.tuto.easycalculator;
+package com.saikat.micropos;
 
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;

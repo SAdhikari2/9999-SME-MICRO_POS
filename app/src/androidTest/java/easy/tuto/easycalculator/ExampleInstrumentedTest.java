@@ -1,4 +1,4 @@
-package easy.tuto.easycalculator;
+package com.saikat.micropos;
 
 import android.content.Context;
 
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
     public void useAppContext() {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        assertEquals("easy.tuto.easycalculator", appContext.getPackageName());
+        assertEquals("com.saikat.micropos", appContext.getPackageName());
     }
 }
