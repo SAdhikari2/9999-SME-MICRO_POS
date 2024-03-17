@@ -1,5 +1,6 @@
 package com.saikat.micropos.persistance.entity;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 import lombok.AllArgsConstructor;
@@ -9,6 +10,6 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TransactionHistory {
+public class TransactionHistory implements Serializable {
     String itemValues, totalValue, cashEntry, paymentType, paymentStatus;
 }

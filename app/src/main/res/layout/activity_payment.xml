@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".PaymentActivity">
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="40dp"
+        android:gravity="center"
+        android:text="@string/payment_method"
+        android:textColor="@color/black"
+        android:textSize="32sp" />
+
+    <LinearLayout
+        android:id="@+id/buttons_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/textView"
+        android:layout_marginTop="180dp"
+        android:layout_marginBottom="80dp"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical"
+        android:background="#F1F1F1">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_online"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_margin="12dp"
+            android:backgroundTint="#5D3FD3"
+            android:text="@string/online"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            app:cornerRadius="0dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_cash"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_margin="12dp"
+            android:backgroundTint="#008000"
+            android:text="@string/cash"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            app:cornerRadius="0dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_due"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_margin="12dp"
+            android:backgroundTint="#F44336"
+            android:text="@string/due"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            app:cornerRadius="0dp" />
+
+    </LinearLayout>
+
+</RelativeLayout>
