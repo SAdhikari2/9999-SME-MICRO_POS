@@ -6,11 +6,8 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -102,21 +99,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             resultTv.setText(finalResult);
         }
         if(buttonText.equals("Cash In +")){
-            solutionTv.setText(resultTv.getText());
-            transactionHistory = new TransactionHistory(
-                    dataToCalculate, resultTv.getText().toString(), "Cash In +", "Cash", "Paid");
-            db = FirebaseDatabase.getInstance();
-            databaseReference = db.getReference("TransactionHistory");
-            databaseReference.child(UUID.randomUUID().toString()).setValue(transactionHistory)
-                    .addOnCompleteListener(task -> {
-                        resultTv.setText("0");
-                        solutionTv.setText("");
-                        Toast.makeText(MainActivity.this,"Successfully Updated", Toast.LENGTH_SHORT).show();
-                    });
+            updateDB(dataToCalculate, buttonText);
             return;
         }
         if(buttonText.equals("Cash Out -")){
-            solutionTv.setText(resultTv.getText());
+            updateDB(dataToCalculate, buttonText);
         }
 
 
@@ -136,6 +123,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }catch (Exception e){
             return "Err";
         }
+    }
+
+    void updateDB(String dataToCalculate, String buttonText) {
+        transactionHistory = new TransactionHistory(
+                dataToCalculate,
+                buttonText.equals("Cash Out -") ? "-".concat(resultTv.getText().toString()) : resultTv.getText().toString(),
+                buttonText,
+                "Cash",
+                "Paid");
+        db = FirebaseDatabase.getInstance();
+        databaseReference = db.getReference("TransactionHistory");
+        databaseReference.child(UUID.randomUUID().toString()).setValue(transactionHistory)
+                .addOnCompleteListener(task -> {
+                    resultTv.setText("0");
+                    solutionTv.setText("");
+                    Toast.makeText(MainActivity.this,"Successfully Updated", Toast.LENGTH_SHORT).show();
+                });
     }
 
 }
