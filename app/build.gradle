@@ -6,7 +6,7 @@ android {
     compileSdk 34
 
     defaultConfig {
-        applicationId "easy.tuto.easycalculator"
+        applicationId "com.saikat.micropos"
         minSdk 23
         targetSdk 34
         versionCode 1
@@ -25,7 +25,7 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    namespace 'easy.tuto.easycalculator'
+    namespace 'com.saikat.micropos'
 }
 
 dependencies {
