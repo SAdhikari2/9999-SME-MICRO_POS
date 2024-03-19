@@ -1,5 +1,6 @@
 package com.saikat.micropos;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
@@ -30,7 +31,13 @@ public class PaymentActivity extends AppCompatActivity implements View.OnClickLi
         MaterialButton button =(MaterialButton) view;
         String buttonText = button.getText().toString();
 
-        TransactionHistory transactionHistory = (TransactionHistory) getIntent().getSerializableExtra("transactionHistoryKey");
+        Intent intent = new Intent(PaymentActivity.this, QrActivity.class);
+
+//        TransactionHistory transactionHistory = (TransactionHistory) getIntent().getSerializableExtra("transactionHistoryKey");
+
+        if(buttonText.equals("Online")) {
+            startActivity(intent);
+        }
 
     }
 }
