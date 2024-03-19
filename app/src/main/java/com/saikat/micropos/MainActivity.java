@@ -12,12 +12,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.saikat.micropos.databinding.ActivityMainBinding;
 import com.saikat.micropos.persistance.entity.TransactionHistory;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import java.util.UUID;
 
 
@@ -25,8 +27,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     TextView resultTv,solutionTv;
 
     TransactionHistory transactionHistory;
-    ActivityMainBinding binding;
-    String itemValues, totalValue, cashEntry, paymentType, paymentStatus;
     FirebaseDatabase db;
     DatabaseReference databaseReference;
 
@@ -99,11 +99,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             resultTv.setText(finalResult);
         }
         if(buttonText.equals("Cash In +")){
-            updateDB(dataToCalculate, buttonText);
+            proceedToPayment(dataToCalculate, buttonText);
             return;
         }
         if(buttonText.equals("Cash Out -")){
-            updateDB(dataToCalculate, buttonText);
+            proceedToPayment(dataToCalculate, buttonText);
         }
 
 
@@ -125,23 +125,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    void updateDB(String dataToCalculate, String buttonText) {
+    void proceedToPayment(String dataToCalculate, String buttonText) {
         Intent intent = new Intent(MainActivity.this, PaymentActivity.class);
-        transactionHistory = new TransactionHistory(
-                dataToCalculate,
-                buttonText.equals("Cash Out -") ? "-".concat(resultTv.getText().toString()) : resultTv.getText().toString(),
-                buttonText,
-                "Cash",
-                "Paid");
+
+        transactionHistory = TransactionHistory.builder()
+                .transactionId(UUID.randomUUID().toString())
+                .itemValues(dataToCalculate)
+                .totalValue(buttonText.equals("Cash Out -") ? "-".concat(resultTv.getText().toString()) : resultTv.getText().toString())
+                .cashEntry(buttonText)
+                .paymentType("")
+                .paymentStatus("")
+                .transactionTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date()))
+                .build();
+
         intent.putExtra("transactionHistoryKey", transactionHistory);
-        db = FirebaseDatabase.getInstance();
-        databaseReference = db.getReference("TransactionHistory");
-        databaseReference.child(UUID.randomUUID().toString()).setValue(transactionHistory)
-                .addOnCompleteListener(task -> {
-                    resultTv.setText("0");
-                    solutionTv.setText("");
-                    Toast.makeText(MainActivity.this,"Successfully Updated", Toast.LENGTH_SHORT).show();
-                });
         startActivity(intent);
     }
 

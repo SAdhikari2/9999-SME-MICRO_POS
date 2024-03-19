@@ -1,17 +1,21 @@
 package com.saikat.micropos;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.PictureDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.caverock.androidsvg.SVG;
 import com.caverock.androidsvg.SVGParseException;
+import com.google.android.material.button.MaterialButton;
 import com.saikat.micropos.persistance.entity.TransactionHistory;
+import com.saikat.micropos.util.TransactionHistoryManager;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -21,11 +25,10 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class QrActivity extends AppCompatActivity {
+public class QrActivity extends AppCompatActivity  implements View.OnClickListener {
 
     private static final String TAG = "QRActivity";
     private ImageView qrCodeImageView;
-    private TextView amountTextView;
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -34,7 +37,9 @@ public class QrActivity extends AppCompatActivity {
         setContentView(R.layout.activity_qr);
 
         qrCodeImageView = findViewById(R.id.qrCodeImageView);
-        amountTextView = findViewById(R.id.amountTextView);
+        TextView amountTextView = findViewById(R.id.amountTextView);
+        assignId(R.id.paidButton);
+        assignId(R.id.cancelButton);
 
         TransactionHistory transactionHistory = (TransactionHistory) getIntent().getSerializableExtra("transactionHistoryKey");
 
@@ -55,6 +60,34 @@ public class QrActivity extends AppCompatActivity {
         new FetchQRCodeTask().execute(apiUrl);
     }
 
+    void assignId(int id){
+        MaterialButton btn = findViewById(id);
+        btn.setOnClickListener(this);
+    }
+
+    @Override
+    public void onClick(View view) {
+        MaterialButton button =(MaterialButton) view;
+        String buttonText = button.getText().toString();
+
+        TransactionHistoryManager transactionHistoryManager = new TransactionHistoryManager();
+
+        Intent intent = new Intent(QrActivity.this, MainActivity.class);
+        TransactionHistory transactionHistory = (TransactionHistory) getIntent().getSerializableExtra("transactionHistoryKey");
+
+        assert transactionHistory != null;
+
+        // Update the paymentStatus field of the transaction in the database
+        transactionHistoryManager.updateTransactionField(
+                transactionHistory.getTransactionId(),
+                "paymentStatus",
+                buttonText
+        );
+
+        startActivity(intent);
+    }
+
+    @SuppressLint("StaticFieldLeak")
     private class FetchQRCodeTask extends AsyncTask<String, Void, Drawable> {
         @Override
         protected Drawable doInBackground(String... urls) {
