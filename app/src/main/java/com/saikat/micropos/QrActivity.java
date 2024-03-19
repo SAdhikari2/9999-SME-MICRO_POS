@@ -1,5 +1,6 @@
 package com.saikat.micropos;
 
+import android.annotation.SuppressLint;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.PictureDrawable;
 import android.os.AsyncTask;
@@ -8,6 +9,7 @@ import android.util.Log;
 import android.widget.ImageView;
 import com.caverock.androidsvg.SVG;
 import com.caverock.androidsvg.SVGParseException;
+import com.saikat.micropos.persistance.entity.TransactionHistory;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -29,9 +31,13 @@ public class QrActivity extends AppCompatActivity {
 
         qrCodeImageView = findViewById(R.id.qrCodeImageView);
 
+        TransactionHistory transactionHistory = (TransactionHistory) getIntent().getSerializableExtra("transactionHistoryKey");
+
+        assert transactionHistory != null;
+
         // Call the API endpoint with dynamic query parameters
         String vpa = "8967859971@ybl";
-        String amount = "10.00";
+        @SuppressLint("DefaultLocale") String amount = String.format("%.2f", Double.parseDouble(transactionHistory.getTotalValue()));
         String name = "Saikat Adhikari";
         String apiUrl = "https://upiqr.in/api/qr" +
                 "?vpa=" + vpa +
