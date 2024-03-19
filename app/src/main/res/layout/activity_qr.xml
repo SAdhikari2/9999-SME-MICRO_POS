@@ -10,6 +10,8 @@
         android:id="@+id/qrCodeImageView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="12dp"
         android:layout_centerInParent="true"/>
 
     <TextView
@@ -27,10 +29,22 @@
         android:layout_height="72dp"
         android:layout_below="@id/amountTextView"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="72dp"
-        android:layout_margin="12dp"
+        android:layout_marginTop="42dp"
+        android:layout_margin="8dp"
         android:backgroundTint="#008000"
         android:textSize="24sp"
         android:text="@string/paid" />
+
+    <Button
+        android:id="@+id/cancelButton"
+        android:layout_width="272dp"
+        android:layout_height="72dp"
+        android:layout_below="@id/paidButton"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"
+        android:layout_margin="8dp"
+        android:backgroundTint="#F44336"
+        android:textSize="24sp"
+        android:text="@string/cancelled" />
 
 </RelativeLayout>
