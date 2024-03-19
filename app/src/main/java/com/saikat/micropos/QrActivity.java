@@ -7,6 +7,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ImageView;
+import android.widget.TextView;
+
 import com.caverock.androidsvg.SVG;
 import com.caverock.androidsvg.SVGParseException;
 import com.saikat.micropos.persistance.entity.TransactionHistory;
@@ -23,13 +25,16 @@ public class QrActivity extends AppCompatActivity {
 
     private static final String TAG = "QRActivity";
     private ImageView qrCodeImageView;
+    private TextView amountTextView;
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_qr);
 
         qrCodeImageView = findViewById(R.id.qrCodeImageView);
+        amountTextView = findViewById(R.id.amountTextView);
 
         TransactionHistory transactionHistory = (TransactionHistory) getIntent().getSerializableExtra("transactionHistoryKey");
 
@@ -43,6 +48,9 @@ public class QrActivity extends AppCompatActivity {
                 "?vpa=" + vpa +
                 "&amount=" + amount +
                 "&name=" + name;
+
+        // Update the TextView with the formatted amount
+        amountTextView.setText("Amount: $" + amount);
 
         new FetchQRCodeTask().execute(apiUrl);
     }
