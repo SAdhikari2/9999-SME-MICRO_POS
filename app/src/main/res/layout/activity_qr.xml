@@ -31,6 +31,6 @@
         android:layout_margin="12dp"
         android:backgroundTint="#008000"
         android:textSize="24sp"
-        android:text="Paid" />
+        android:text="@string/paid" />
 
 </RelativeLayout>
