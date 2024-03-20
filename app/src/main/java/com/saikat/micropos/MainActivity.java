@@ -27,8 +27,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     TextView resultTv,solutionTv;
 
     TransactionHistory transactionHistory;
-    FirebaseDatabase db;
-    DatabaseReference databaseReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
