@@ -40,9 +40,9 @@ public class TransactionHistoryManager {
     }
 
     // Method to update a field in the transaction history
-    public void updateTransactionField(String transactionId, String fieldToUpdate, Object newValue) {
+    public void updateTransactionField(String userId, String transactionId, String fieldToUpdate, Object newValue) {
         // Get reference to the specific node based on transactionId
-        DatabaseReference transactionRef = databaseReference.child(transactionId);
+        DatabaseReference transactionRef = databaseReference.child(userId).child(transactionId);
 
         // Update the field with the new value
         transactionRef.child(fieldToUpdate).setValue(newValue);

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.PictureDrawable;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -55,9 +56,9 @@ public class QrActivity extends AppCompatActivity  implements View.OnClickListen
                 "&name=" + name;
 
         // Update the TextView with the formatted amount
-        amountTextView.setText("Amount: $" + amount);
+        amountTextView.setText("Amount: ₹" + amount);
 
-        new FetchQRCodeTask().execute(apiUrl);
+        new FetchQRCodeTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, apiUrl);
     }
 
     void assignId(int id){
@@ -79,6 +80,7 @@ public class QrActivity extends AppCompatActivity  implements View.OnClickListen
 
         // Update the paymentStatus field of the transaction in the database
         transactionHistoryManager.updateTransactionField(
+                transactionHistory.getUserId(),
                 transactionHistory.getTransactionId(),
                 "paymentStatus",
                 buttonText
