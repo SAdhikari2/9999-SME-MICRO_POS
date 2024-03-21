@@ -2,7 +2,7 @@
 <resources>
     <string name="cash_in">Cash In +</string>
     <string name="cash_out">Cash Out -</string>
-    <string name="equals">=</string>
+    <string name="percentage">%</string>
     <string name="dot">.</string>
     <string name="zero">0</string>
     <string name="ac">AC</string>

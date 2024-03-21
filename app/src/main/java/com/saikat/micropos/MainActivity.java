@@ -67,6 +67,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
+    /**
+     * Method onClick takes care of button functionality
+     * @param view passed as parameter
+     */
     @Override
     public void onClick(View view) {
         MaterialButton button =(MaterialButton) view;
@@ -78,7 +82,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             resultTv.setText("0");
             return;
         }
-        if(buttonText.equals("=")){
+        if(buttonText.equals("%")){
+            /*
+             * Need to Write the logic for % button
+             */
             return;
         }
         if(buttonText.equals("C")){
