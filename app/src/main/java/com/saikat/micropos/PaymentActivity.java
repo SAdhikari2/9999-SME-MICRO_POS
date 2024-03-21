@@ -13,6 +13,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.saikat.micropos.persistance.entity.TransactionHistory;
+import com.saikat.micropos.util.TransactionHistoryManager;
 
 public class PaymentActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -39,17 +40,40 @@ public class PaymentActivity extends AppCompatActivity implements View.OnClickLi
         Intent intent = new Intent(PaymentActivity.this, QrActivity.class);
 
         TransactionHistory transactionHistory = (TransactionHistory) getIntent().getSerializableExtra("transactionHistoryKey");
+        assert transactionHistory != null;
         intent.putExtra("transactionHistoryKey", transactionHistory);
+        // Ensure user is authenticated
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (buttonText.equals("Online")) {
-            assert transactionHistory != null;
             transactionHistory.setPaymentType(buttonText);
-            // Ensure user is authenticated
-            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
             if (user != null) {
                 writeTransactionDataToDatabase(transactionHistory, intent, user.getUid());
             } else {
                 Toast.makeText(PaymentActivity.this, "User is not authenticated", Toast.LENGTH_SHORT).show();
             }
+        }
+        if (buttonText.equals("Cash") | buttonText.equals("Due")) {
+            Intent intentMain = new Intent(PaymentActivity.this, MainActivity.class);
+            // Update the paymentStatus field of the transaction in the database
+            transactionHistory.setPaymentType(buttonText);
+            assert user != null;
+            transactionHistory.setUserId(user.getUid());
+            transactionHistory.setPaymentStatus(buttonText.equals("Cash") ? "Paid" : buttonText);
+            // Write transaction data to Firebase Realtime Database
+            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("TransactionHistory").child(user.getUid());
+            databaseReference.child(transactionHistory.getTransactionTime()).setValue(transactionHistory)
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            Toast.makeText(PaymentActivity.this, "Successfully Updated", Toast.LENGTH_SHORT).show();
+                            startActivity(intentMain);
+                            finish(); // Finish the activity after starting the intent
+                        } else {
+                            Toast.makeText(PaymentActivity.this, "Failed to update transaction data", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(PaymentActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    });
         }
     }
 
