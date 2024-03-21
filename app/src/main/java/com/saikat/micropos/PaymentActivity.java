@@ -33,40 +33,44 @@ public class PaymentActivity extends AppCompatActivity implements View.OnClickLi
 
     @Override
     public void onClick(View view) {
-        MaterialButton button =(MaterialButton) view;
+        MaterialButton button = (MaterialButton) view;
         String buttonText = button.getText().toString();
 
         Intent intent = new Intent(PaymentActivity.this, QrActivity.class);
 
         TransactionHistory transactionHistory = (TransactionHistory) getIntent().getSerializableExtra("transactionHistoryKey");
         intent.putExtra("transactionHistoryKey", transactionHistory);
-        if(buttonText.equals("Online")) {
+        if (buttonText.equals("Online")) {
             assert transactionHistory != null;
             transactionHistory.setPaymentType(buttonText);
             // Ensure user is authenticated
             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
             if (user != null) {
-                String uid = user.getUid();
-                transactionHistory.setUserId(uid); // Include user UID in transaction data
-
-                // Write transaction data to Firebase Realtime Database
-                DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("TransactionHistory").child(uid);
-                databaseReference.child(transactionHistory.getTransactionId()).setValue(transactionHistory)
-                        .addOnCompleteListener(task -> {
-                            if (task.isSuccessful()) {
-                                Toast.makeText(PaymentActivity.this, "Successfully Updated", Toast.LENGTH_SHORT).show();
-                                startActivity(intent);
-                            } else {
-                                Toast.makeText(PaymentActivity.this, "Failed to update transaction data", Toast.LENGTH_SHORT).show();
-                            }
-                        })
-                        .addOnFailureListener(e -> {
-                            Toast.makeText(PaymentActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                        });
+                writeTransactionDataToDatabase(transactionHistory, intent, user.getUid());
             } else {
                 Toast.makeText(PaymentActivity.this, "User is not authenticated", Toast.LENGTH_SHORT).show();
             }
         }
-
     }
+
+    private void writeTransactionDataToDatabase(TransactionHistory transactionHistory, Intent intent, String uid) {
+        transactionHistory.setUserId(uid); // Include user UID in transaction data
+
+        // Write transaction data to Firebase Realtime Database
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("TransactionHistory").child(uid);
+        databaseReference.child(transactionHistory.getTransactionTime()).setValue(transactionHistory)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Toast.makeText(PaymentActivity.this, "Successfully Updated", Toast.LENGTH_SHORT).show();
+                        startActivity(intent);
+                        finish(); // Finish the activity after starting the intent
+                    } else {
+                        Toast.makeText(PaymentActivity.this, "Failed to update transaction data", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(PaymentActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+    }
+
 }

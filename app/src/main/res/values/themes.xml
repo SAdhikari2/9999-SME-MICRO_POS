@@ -1,6 +1,6 @@
 <resources>
     <!-- Base application theme. -->
-    <style name="Theme.EasyCalculator" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.MicroPOS" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">#FF9800</item>
         <item name="colorPrimaryVariant">#FFC107</item>

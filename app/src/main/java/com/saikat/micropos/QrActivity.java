@@ -81,7 +81,7 @@ public class QrActivity extends AppCompatActivity  implements View.OnClickListen
         // Update the paymentStatus field of the transaction in the database
         transactionHistoryManager.updateTransactionField(
                 transactionHistory.getUserId(),
-                transactionHistory.getTransactionId(),
+                transactionHistory.getTransactionTime(),
                 "paymentStatus",
                 buttonText
         );
