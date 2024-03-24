@@ -5,26 +5,32 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.PictureDrawable;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.caverock.androidsvg.SVG;
 import com.caverock.androidsvg.SVGParseException;
 import com.google.android.material.button.MaterialButton;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.saikat.micropos.persistance.entity.TransactionHistory;
 import com.saikat.micropos.util.TransactionHistoryManager;
-
-import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+
+import lombok.NonNull;
 
 public class QrActivity extends AppCompatActivity  implements View.OnClickListener {
 
@@ -46,19 +52,34 @@ public class QrActivity extends AppCompatActivity  implements View.OnClickListen
 
         assert transactionHistory != null;
 
-        // Call the API endpoint with dynamic query parameters
-        String vpa = "8967859971@ybl";
-        @SuppressLint("DefaultLocale") String amount = String.format("%.2f", Double.parseDouble(transactionHistory.getTotalValue()));
-        String name = "Saikat Adhikari";
-        String apiUrl = "https://upiqr.in/api/qr" +
-                "?vpa=" + vpa +
-                "&amount=" + amount +
-                "&name=" + name;
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference()
+                .child("TransactionHistory").child(transactionHistory.getUserId());
 
-        // Update the TextView with the formatted amount
-        amountTextView.setText("Amount: ₹" + amount);
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    @SuppressLint("DefaultLocale") String amount = String.format("%.2f", Double.parseDouble(transactionHistory.getTotalValue()));
+                    String apiUrl = "https://upiqr.in/api/qr" +
+                            "?vpa=" + dataSnapshot.child("vpa").getValue(String.class) +
+                            "&amount=" + amount +
+                            "&name=" + dataSnapshot.child("name").getValue(String.class);;
 
-        new FetchQRCodeTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, apiUrl);
+                    // Update the TextView with the formatted amount
+                    amountTextView.setText("Amount: ₹" + amount);
+
+                    new FetchQRCodeTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, apiUrl);
+                } else {
+                    Log.d(TAG, "No data found at the specified path");
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle any errors
+                Log.e(TAG, "Database error: " + databaseError.getMessage());
+            }
+        });
     }
 
     void assignId(int id){
@@ -94,7 +115,6 @@ public class QrActivity extends AppCompatActivity  implements View.OnClickListen
         @Override
         protected Drawable doInBackground(String... urls) {
             String urlString = urls[0];
-            Drawable bitmap = null;
             HttpURLConnection urlConnection = null;
             try {
                 // Create URL object
@@ -136,7 +156,7 @@ public class QrActivity extends AppCompatActivity  implements View.OnClickListen
                     urlConnection.disconnect();
                 }
             }
-            return bitmap;
+            return null;
         }
 
         @Override
