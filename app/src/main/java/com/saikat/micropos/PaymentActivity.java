@@ -13,7 +13,6 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.saikat.micropos.persistance.entity.TransactionHistory;
-import com.saikat.micropos.util.TransactionHistoryManager;
 
 public class PaymentActivity extends AppCompatActivity implements View.OnClickListener {
 
