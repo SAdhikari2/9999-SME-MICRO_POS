@@ -1,10 +1,13 @@
 package com.saikat.micropos;
 
 import android.Manifest;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.widget.Button;
@@ -17,6 +20,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
@@ -111,11 +115,8 @@ public class PdfGenerateActivity extends AppCompatActivity {
             // Close the document
             document.close();
 
-            // Check if the activity is still running before showing the Toast
-            if (!isFinishing()) {
-                // Show a success message
-                Toast.makeText(this, "PDF generated successfully", Toast.LENGTH_SHORT).show();
-            }
+            // Show a success message
+            Toast.makeText(this, "PDF generated successfully", Toast.LENGTH_SHORT).show();
 
             // Create a notification
             createNotification(filePath);
@@ -123,42 +124,40 @@ public class PdfGenerateActivity extends AppCompatActivity {
         } catch (FileNotFoundException | DocumentException e) {
             e.getMessage();
             // Handle exceptions
-            // Check if the activity is still running before showing the Toast
-            if (!isFinishing()) {
-                Toast.makeText(this, "Failed to generate PDF", Toast.LENGTH_SHORT).show();
-            }
+            Toast.makeText(this, "Failed to generate PDF", Toast.LENGTH_SHORT).show();
         }
     }
 
+
     private void createNotification(String filePath) {
-        // Create an intent to open the PDF file
         Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setDataAndType(Uri.fromFile(new File(filePath)), "application/pdf");
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        Uri uri = FileProvider.getUriForFile(this, getPackageName() + ".fileprovider", new File(filePath));
+        intent.setDataAndType(uri, "application/pdf");
+        intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
-        // Create a PendingIntent for the intent
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
 
-        // Build the notification
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "pdf_notification_channel")
+        // Create a notification channel
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            String channelId = "channel_id";
+            String channelName = "Channel Name";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(channelId, channelName, importance);
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "channel_id")
+                .setContentTitle("PDF Exported")
+                .setContentText("Click to open the exported PDF")
                 .setSmallIcon(R.drawable.icon_save)
-                .setContentTitle("PDF Generated")
-                .setContentText("Click to open the PDF file")
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true);
 
-        // Get the NotificationManager and notify the notification
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
             return;
         }
-        notificationManager.notify(1, builder.build());
+        notificationManager.notify(123, builder.build());
     }
+
 }
