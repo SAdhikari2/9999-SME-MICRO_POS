@@ -9,7 +9,8 @@ android {
     defaultConfig {
         applicationId "com.saikat.micropos"
         minSdk 23
-        targetSdk 34
+        //noinspection ExpiredTargetSdkVersion
+        targetSdk 32
         versionCode 1
         versionName "1.0"
 
@@ -41,7 +42,7 @@ dependencies {
     implementation 'com.faendir.rhino:rhino-android:1.5.2'
     implementation 'com.google.firebase:firebase-database:20.3.1'
     implementation 'com.google.firebase:firebase-analytics'
-    implementation platform('com.google.firebase:firebase-bom:32.7.4')
+    implementation platform('com.google.firebase:firebase-bom:32.8.0')
     implementation 'com.google.firebase:firebase-database'
     implementation 'org.projectlombok:lombok:1.18.28'
     annotationProcessor 'org.projectlombok:lombok:1.18.28'
@@ -53,6 +54,8 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.biometric:biometric:1.1.0'
-    implementation 'androidx.core:core-ktx:1.7.0'
+    implementation 'androidx.core:core-ktx:1.12.0'
+    implementation 'com.itextpdf:itextg:5.5.10'
+    implementation 'com.google.firebase:firebase-firestore:24.11.0'
 }
 apply plugin: 'com.google.gms.google-services'
