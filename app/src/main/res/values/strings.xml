@@ -34,4 +34,5 @@
     <string name="signup_login_hint">Already have an account? Sign In</string>
     <string name="login_signup_hint">Don\'t have an account? Sign Up</string>
     <string name="selected_date_format">%d-%02d-%02d</string>
+    <string name="pdf_generator">PDF Generator</string>
 </resources>

@@ -28,4 +28,5 @@
     <string name="paid">Paid</string>
     <string name="cancelled">Cancelled</string>
     <string name="selected_date_format">%d-%02d-%02d</string>
+    <string name="pdf_generator">PDF Generator</string>
 </resources>

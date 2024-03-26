@@ -1,37 +1,120 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:background="#F3F4F6"
+    android:padding="24dp">
 
+    <!-- Title -->
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/pdf_generator"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:textColor="#333333"
+        android:gravity="center"
+        android:background="#FFFFFF"
+        android:layout_marginBottom="32dp"/>
+
+    <!-- Start Date Label -->
+    <TextView
+        android:id="@+id/tvStartDateLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Start Date:"
+        android:textSize="18sp"
+        android:textColor="#333333"
+        android:layout_below="@id/tvTitle"
+        android:layout_marginBottom="8dp"/>
+
+    <!-- Start Date Button -->
     <Button
         android:id="@+id/btnStartDate"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Select Start Date"
-        android:onClick="selectStartDate" />
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"
+        android:background="#3498DB"
+        android:layout_below="@id/tvStartDateLabel"
+        android:layout_marginBottom="16dp"/>
 
+    <!-- End Date Label -->
+    <TextView
+        android:id="@+id/tvEndDateLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="End Date:"
+        android:textSize="18sp"
+        android:textColor="#333333"
+        android:layout_below="@id/btnStartDate"
+        android:layout_marginBottom="8dp"/>
+
+    <!-- End Date Button -->
     <Button
         android:id="@+id/btnEndDate"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Select End Date"
-        android:onClick="selectEndDate" />
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"
+        android:background="#E74C3C"
+        android:layout_below="@id/tvEndDateLabel"
+        android:layout_marginBottom="16dp"/>
 
+    <!-- Payment Status Label -->
+    <TextView
+        android:id="@+id/tvPaymentStatusLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Payment Status:"
+        android:textSize="18sp"
+        android:textColor="#333333"
+        android:layout_below="@id/btnEndDate"
+        android:layout_marginBottom="8dp"/>
+
+    <!-- Payment Status Spinner -->
     <Spinner
         android:id="@+id/paymentStatusSpinner"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tvPaymentStatusLabel"
+        android:layout_marginBottom="16dp"/>
 
+    <!-- Payment Type Label -->
+    <TextView
+        android:id="@+id/tvPaymentTypeLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Payment Type:"
+        android:textSize="18sp"
+        android:textColor="#333333"
+        android:layout_below="@id/paymentStatusSpinner"
+        android:layout_marginBottom="8dp"/>
+
+    <!-- Payment Type Spinner -->
     <Spinner
         android:id="@+id/paymentTypeSpinner"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tvPaymentTypeLabel"
+        android:layout_marginBottom="16dp"/>
 
+    <!-- Generate PDF Button -->
     <Button
         android:id="@+id/btnGeneratePDF"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Generate PDF"
-        android:onClick="generatePDF" />
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"
+        android:background="#2ECC71"
+        android:layout_below="@id/paymentTypeSpinner"
+        android:layout_marginBottom="24dp"/>
 
-</LinearLayout>
+</RelativeLayout>
