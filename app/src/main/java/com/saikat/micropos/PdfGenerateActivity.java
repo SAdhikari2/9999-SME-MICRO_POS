@@ -98,6 +98,15 @@ public class PdfGenerateActivity extends AppCompatActivity {
     }
 
     private void generatePdf() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        Date startDate = null;
+        Date endDate = null;
+        try {
+            startDate = dateFormat.parse("2024-03-23");
+            endDate = dateFormat.parse("2024-03-25");
+        } catch (ParseException e) {
+            e.getMessage();
+        }
         Document document = new Document(PageSize.A4.rotate());
         try {
             String filePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
@@ -106,26 +115,34 @@ public class PdfGenerateActivity extends AppCompatActivity {
             PdfWriter.getInstance(document, new FileOutputStream(filePath));
             document.open();
 
-            PdfPTable table = new PdfPTable(7); // 7 columns for each transaction detail
+            PdfPTable table = new PdfPTable(7); // 5 columns for each transaction detail
             table.setWidthPercentage(100); // Make table fill the width of the page
 
             // Add table headers
             addTableHeader(table);
 
-            mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+            Date finalStartDate = startDate;
+            Date finalEndDate = endDate;
+            mDatabase.orderByKey().startAt(formatDate(startDate)).endAt(formatDate(endDate)).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                        String transactionTime = snapshot.child("transactionTime").getValue(String.class);
-                        String cashEntry = snapshot.child("cashEntry").getValue(String.class);
-                        String itemValues = snapshot.child("itemValues").getValue(String.class);
-                        String paymentStatus = snapshot.child("paymentStatus").getValue(String.class);
-                        String paymentType = snapshot.child("paymentType").getValue(String.class);
-                        String totalValue = snapshot.child("totalValue").getValue(String.class);
-                        String transactionId = snapshot.child("transactionId").getValue(String.class);
+                        try {
+                            String transactionTime = snapshot.child("transactionTime").getValue(String.class);
+                            if (isWithinDateRange(transactionTime, finalStartDate, finalEndDate)) {
+                                String cashEntry = snapshot.child("cashEntry").getValue(String.class);
+                                String itemValues = snapshot.child("itemValues").getValue(String.class);
+                                String paymentStatus = snapshot.child("paymentStatus").getValue(String.class);
+                                String paymentType = snapshot.child("paymentType").getValue(String.class);
+                                String totalValue = snapshot.child("totalValue").getValue(String.class);
+                                String transactionId = snapshot.child("transactionId").getValue(String.class);
 
-                        // Add transaction details to the table
-                        addRow(table, transactionTime, transactionId, cashEntry, itemValues, paymentStatus, paymentType, totalValue);
+                                // Add transaction details to the table
+                                addRow(table, transactionTime, transactionId, cashEntry, itemValues, paymentStatus, paymentType, totalValue);
+                            }
+                        } catch (Exception e) {
+                            e.getMessage();
+                        }
                     }
 
                     // Add the table to the document
@@ -148,6 +165,23 @@ public class PdfGenerateActivity extends AppCompatActivity {
         } catch (FileNotFoundException | DocumentException e) {
             e.getMessage();
             Toast.makeText(this, "Failed to generate PDF", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private String formatDate(Date date) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        return dateFormat.format(date);
+    }
+
+    private boolean isWithinDateRange(String transactionTime, Date startDate, Date endDate) {
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+            Date date = dateFormat.parse(transactionTime);
+            assert date != null;
+            return date.after(startDate) && date.before(endDate);
+        } catch (ParseException e) {
+            e.getMessage();
+            return false;
         }
     }
 
