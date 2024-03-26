@@ -1,6 +1,8 @@
 package com.saikat.micropos;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.DatePickerDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -10,7 +12,10 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -40,6 +45,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
@@ -50,6 +56,11 @@ public class PdfGenerateActivity extends AppCompatActivity {
 
     private DatabaseReference mDatabase;
 
+    private Button btnStartDate, btnEndDate;
+    private int selectedYear, selectedMonth, selectedDay;
+    private int selectedEndYear, selectedEndMonth, selectedEndDay;
+
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,7 +68,26 @@ public class PdfGenerateActivity extends AppCompatActivity {
 
         mDatabase = FirebaseDatabase.getInstance().getReference().child("TransactionHistory").child("GKPOkFrxVeQhqt5NU4xBbmn5XCw1");
 
+        // Initialize views
+        btnStartDate = findViewById(R.id.btnStartDate);
+        btnEndDate = findViewById(R.id.btnEndDate);
+        Spinner paymentStatusSpinner = findViewById(R.id.paymentStatusSpinner);
+        Spinner paymentTypeSpinner = findViewById(R.id.paymentTypeSpinner);
         Button generatePdfButton = findViewById(R.id.btnGeneratePDF);
+
+        // Populate payment status spinner
+        ArrayAdapter<CharSequence> statusAdapter = ArrayAdapter.createFromResource(this,
+                R.array.payment_status_options, android.R.layout.simple_spinner_item);
+        statusAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        paymentStatusSpinner.setAdapter(statusAdapter);
+
+        // Populate payment type spinner
+        ArrayAdapter<CharSequence> typeAdapter = ArrayAdapter.createFromResource(this,
+                R.array.payment_type_options, android.R.layout.simple_spinner_item);
+        typeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        paymentTypeSpinner.setAdapter(typeAdapter);
+
+        // Handle PDF generation button click
         generatePdfButton.setOnClickListener(v -> {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     != PackageManager.PERMISSION_GRANTED) {
@@ -66,6 +96,10 @@ public class PdfGenerateActivity extends AppCompatActivity {
                 generatePdf();
             }
         });
+
+        // Set onClick listeners for date selection buttons
+        btnStartDate.setOnClickListener(this::selectStartDate);
+        btnEndDate.setOnClickListener(this::selectEndDate);
     }
 
     private void requestStoragePermission() {
@@ -97,16 +131,67 @@ public class PdfGenerateActivity extends AppCompatActivity {
         }
     }
 
+    public void selectStartDate(View view) {
+        final Calendar calendar = Calendar.getInstance();
+        int currentYear = calendar.get(Calendar.YEAR);
+        int currentMonth = calendar.get(Calendar.MONTH);
+        int currentDay = calendar.get(Calendar.DAY_OF_MONTH);
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this,
+                (datePicker, year, month, day) -> {
+                    selectedYear = year;
+                    selectedMonth = month;
+                    selectedDay = day;
+                    btnStartDate.setText(getString(R.string.selected_date_format, year, month + 1, day));
+                }, currentYear, currentMonth, currentDay);
+        datePickerDialog.show();
+    }
+
+    public void selectEndDate(View view) {
+        final Calendar calendar = Calendar.getInstance();
+        int currentYear = calendar.get(Calendar.YEAR);
+        int currentMonth = calendar.get(Calendar.MONTH);
+        int currentDay = calendar.get(Calendar.DAY_OF_MONTH);
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this,
+                (datePicker, year, month, day) -> {
+                    selectedEndYear = year;
+                    selectedEndMonth = month;
+                    selectedEndDay = day;
+                    btnEndDate.setText(getString(R.string.selected_date_format, year, month + 1, day));
+                }, currentYear, currentMonth, currentDay);
+        datePickerDialog.show();
+    }
+
     private void generatePdf() {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         Date startDate = null;
         Date endDate = null;
+        String desiredPaymentStatus;
+        String desiredPaymentType;
+
+        // Get selected dates
         try {
-            startDate = dateFormat.parse("2024-03-23");
-            endDate = dateFormat.parse("2024-03-25");
+            int startYear = selectedYear;
+            int startMonth = selectedMonth;
+            int startDay = selectedDay;
+            startDate = dateFormat.parse(String.format(Locale.getDefault(), "%04d-%02d-%02d", startYear, startMonth + 1, startDay));
+
+            int endYear = selectedEndYear;
+            int endMonth = selectedEndMonth;
+            int endDay = selectedEndDay;
+            endDate = dateFormat.parse(String.format(Locale.getDefault(), "%04d-%02d-%02d", endYear, endMonth + 1, endDay));
         } catch (ParseException e) {
             e.getMessage();
         }
+
+        // Get desired payment status and type
+        Spinner paymentStatusSpinner = findViewById(R.id.paymentStatusSpinner);
+        Spinner paymentTypeSpinner = findViewById(R.id.paymentTypeSpinner);
+
+        desiredPaymentStatus = paymentStatusSpinner.getSelectedItem().toString();
+        desiredPaymentType = paymentTypeSpinner.getSelectedItem().toString();
+
         Document document = new Document(PageSize.A4.rotate());
         try {
             String filePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
@@ -115,7 +200,7 @@ public class PdfGenerateActivity extends AppCompatActivity {
             PdfWriter.getInstance(document, new FileOutputStream(filePath));
             document.open();
 
-            PdfPTable table = new PdfPTable(7); // 5 columns for each transaction detail
+            PdfPTable table = new PdfPTable(7); // 7 columns for each transaction detail
             table.setWidthPercentage(100); // Make table fill the width of the page
 
             // Add table headers
@@ -137,13 +222,28 @@ public class PdfGenerateActivity extends AppCompatActivity {
                                 String totalValue = snapshot.child("totalValue").getValue(String.class);
                                 String transactionId = snapshot.child("transactionId").getValue(String.class);
 
-                                // Add transaction details to the table
-                                addRow(table, transactionTime, transactionId, cashEntry, itemValues, paymentStatus, paymentType, totalValue);
+                                // Check if the transaction meets the desired conditions
+                                boolean meetsConditions = false;
+                                if (desiredPaymentStatus.equals("All Transactions") && desiredPaymentType.equals("All Transactions")) {
+                                    meetsConditions = true; // Include all transactions
+                                } else if (desiredPaymentStatus.equals("All Transactions")) {
+                                    meetsConditions = desiredPaymentType.equals(paymentType); // Filter by payment type only
+                                } else if (desiredPaymentType.equals("All Transactions")) {
+                                    meetsConditions = desiredPaymentStatus.equals(paymentStatus); // Filter by payment status only
+                                } else {
+                                    meetsConditions = desiredPaymentStatus.equals(paymentStatus) && desiredPaymentType.equals(paymentType); // Filter by both payment status and type
+                                }
+
+                                if (meetsConditions) {
+                                    // Add transaction details to the table
+                                    addRow(table, transactionTime, transactionId, cashEntry, itemValues, paymentStatus, paymentType, totalValue);
+                                }
                             }
                         } catch (Exception e) {
                             e.getMessage();
                         }
                     }
+
 
                     // Add the table to the document
                     try {
@@ -167,6 +267,7 @@ public class PdfGenerateActivity extends AppCompatActivity {
             Toast.makeText(this, "Failed to generate PDF", Toast.LENGTH_SHORT).show();
         }
     }
+
 
     private String formatDate(Date date) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
