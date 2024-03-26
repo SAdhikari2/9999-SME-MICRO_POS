@@ -22,59 +22,65 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class PdfGenerateActivity extends AppCompatActivity {
 
     private static final int PERMISSION_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
     private static final String[] STORAGE_PERMISSIONS = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
+    private DatabaseReference mDatabase;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_generate_pdf);
 
+        mDatabase = FirebaseDatabase.getInstance().getReference().child("TransactionHistory").child("GKPOkFrxVeQhqt5NU4xBbmn5XCw1");
+
         Button generatePdfButton = findViewById(R.id.btnGeneratePDF);
         generatePdfButton.setOnClickListener(v -> {
-            // Check if the WRITE_EXTERNAL_STORAGE permission is granted
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     != PackageManager.PERMISSION_GRANTED) {
-                // Permission is not granted, request it
                 requestStoragePermission();
             } else {
-                // Permission is granted, proceed with PDF generation
                 generatePdf();
             }
         });
     }
 
     private void requestStoragePermission() {
-        // Should we show an explanation?
         if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-            // Show an explanation to the user
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("Storage Permission Required")
                     .setMessage("This app requires storage permission to generate PDF files.")
                     .setPositiveButton("Grant Permission", (dialog, which) -> {
-                        // Request the permission
                         ActivityCompat.requestPermissions(PdfGenerateActivity.this,
                                 STORAGE_PERMISSIONS, PERMISSION_REQUEST_WRITE_EXTERNAL_STORAGE);
                     })
-                    .setNegativeButton("Cancel", (dialog, which) -> {
-                        // Cancel the dialog
-                        dialog.dismiss();
-                    })
+                    .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
                     .create()
                     .show();
         } else {
-            // No explanation needed, request the permission
             ActivityCompat.requestPermissions(this, STORAGE_PERMISSIONS, PERMISSION_REQUEST_WRITE_EXTERNAL_STORAGE);
         }
     }
@@ -83,51 +89,82 @@ public class PdfGenerateActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == PERMISSION_REQUEST_WRITE_EXTERNAL_STORAGE) {
-            // Check if permission is granted
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission granted, proceed with PDF generation
                 generatePdf();
             } else {
-                // Permission denied
                 Toast.makeText(this, "Storage permission denied", Toast.LENGTH_SHORT).show();
             }
         }
     }
 
     private void generatePdf() {
-        // Proceed with PDF generation
-        Document document = new Document();
+        Document document = new Document(PageSize.A4.rotate());
         try {
-            // Define the file path
             String filePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
                     + File.separator + "example.pdf";
 
-            // Create a PdfWriter instance to write the document to the file
             PdfWriter.getInstance(document, new FileOutputStream(filePath));
-
-            // Open the document
             document.open();
 
-            // Add content to the document
-            Paragraph paragraph = new Paragraph("Hello, this is a PDF document.");
-            document.add(paragraph);
+            PdfPTable table = new PdfPTable(7); // 7 columns for each transaction detail
+            table.setWidthPercentage(100); // Make table fill the width of the page
 
-            // Close the document
-            document.close();
+            // Add table headers
+            addTableHeader(table);
 
-            // Show a success message
-            Toast.makeText(this, "PDF generated successfully", Toast.LENGTH_SHORT).show();
+            mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        String transactionTime = snapshot.child("transactionTime").getValue(String.class);
+                        String cashEntry = snapshot.child("cashEntry").getValue(String.class);
+                        String itemValues = snapshot.child("itemValues").getValue(String.class);
+                        String paymentStatus = snapshot.child("paymentStatus").getValue(String.class);
+                        String paymentType = snapshot.child("paymentType").getValue(String.class);
+                        String totalValue = snapshot.child("totalValue").getValue(String.class);
+                        String transactionId = snapshot.child("transactionId").getValue(String.class);
 
-            // Create a notification
-            createNotification(filePath);
+                        // Add transaction details to the table
+                        addRow(table, transactionTime, transactionId, cashEntry, itemValues, paymentStatus, paymentType, totalValue);
+                    }
+
+                    // Add the table to the document
+                    try {
+                        document.add(table);
+                    } catch (DocumentException e) {
+                        throw new RuntimeException(e);
+                    }
+                    document.close();
+                    Toast.makeText(PdfGenerateActivity.this, "PDF generated successfully", Toast.LENGTH_SHORT).show();
+                    createNotification(filePath);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    Toast.makeText(PdfGenerateActivity.this, "Failed to retrieve data from Firebase", Toast.LENGTH_SHORT).show();
+                }
+            });
 
         } catch (FileNotFoundException | DocumentException e) {
             e.getMessage();
-            // Handle exceptions
             Toast.makeText(this, "Failed to generate PDF", Toast.LENGTH_SHORT).show();
         }
     }
 
+    private void addTableHeader(PdfPTable table) {
+        String[] headers = {"Date", "Transaction ID", "Cash Entry", "Item Values", "Payment Status", "Payment Type", "Total Value"};
+        for (String header : headers) {
+            PdfPCell cell = new PdfPCell();
+            cell.setPhrase(new Phrase(header));
+            table.addCell(cell);
+        }
+    }
+
+    private void addRow(PdfPTable table, String... rowData) {
+        for (String data : rowData) {
+            table.addCell(data);
+        }
+    }
 
     private void createNotification(String filePath) {
         Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -137,7 +174,6 @@ public class PdfGenerateActivity extends AppCompatActivity {
 
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
 
-        // Create a notification channel
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             String channelId = "channel_id";
             String channelName = "Channel Name";
@@ -155,9 +191,15 @@ public class PdfGenerateActivity extends AppCompatActivity {
 
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
             return;
         }
         notificationManager.notify(123, builder.build());
     }
-
 }
