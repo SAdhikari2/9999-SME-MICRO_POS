@@ -1,4 +1,4 @@
-package com.saikat.micropos;
+package com.saikat.micropos.activity;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -21,6 +21,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.saikat.micropos.R;
 import com.saikat.micropos.persistance.entity.TransactionHistory;
 import com.saikat.micropos.util.TransactionHistoryManager;
 

@@ -1,4 +1,4 @@
-package com.saikat.micropos;
+package com.saikat.micropos.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,8 +12,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.saikat.micropos.R;
 import com.saikat.micropos.persistance.entity.TransactionHistory;
-import com.saikat.micropos.util.TransactionHistoryManager;
 
 public class PaymentActivity extends AppCompatActivity implements View.OnClickListener {
 
