@@ -1,4 +1,4 @@
-package com.saikat.micropos;
+package com.saikat.micropos.activity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -15,6 +15,7 @@ import androidx.core.content.ContextCompat;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.saikat.micropos.R;
 
 import java.util.Calendar;
 import java.util.concurrent.Executor;

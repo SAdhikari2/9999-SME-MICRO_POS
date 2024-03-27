@@ -23,59 +23,62 @@
         android:id="@+id/tvStartDateLabel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Start Date:"
+        android:text="@string/start_date"
+        android:textStyle="bold"
         android:textSize="18sp"
         android:textColor="#333333"
         android:layout_below="@id/tvTitle"
-        android:layout_marginBottom="8dp"/>
+        android:layout_marginBottom="12dp"/>
 
     <!-- Start Date Button -->
     <Button
         android:id="@+id/btnStartDate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Select Start Date"
+        android:text="@string/select_start_date"
         android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="#FFFFFF"
         android:background="#3498DB"
         android:layout_below="@id/tvStartDateLabel"
-        android:layout_marginBottom="16dp"/>
+        android:layout_marginBottom="26dp"/>
 
     <!-- End Date Label -->
     <TextView
         android:id="@+id/tvEndDateLabel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="End Date:"
+        android:text="@string/end_date"
+        android:textStyle="bold"
         android:textSize="18sp"
         android:textColor="#333333"
         android:layout_below="@id/btnStartDate"
-        android:layout_marginBottom="8dp"/>
+        android:layout_marginBottom="12dp"/>
 
     <!-- End Date Button -->
     <Button
         android:id="@+id/btnEndDate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Select End Date"
+        android:text="@string/select_end_date"
         android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="#FFFFFF"
         android:background="#E74C3C"
         android:layout_below="@id/tvEndDateLabel"
-        android:layout_marginBottom="16dp"/>
+        android:layout_marginBottom="26dp"/>
 
     <!-- Payment Status Label -->
     <TextView
         android:id="@+id/tvPaymentStatusLabel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Payment Status:"
+        android:text="@string/payment_status"
+        android:textStyle="bold"
         android:textSize="18sp"
         android:textColor="#333333"
         android:layout_below="@id/btnEndDate"
-        android:layout_marginBottom="8dp"/>
+        android:layout_marginBottom="12dp"/>
 
     <!-- Payment Status Spinner -->
     <Spinner
@@ -83,18 +86,19 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/tvPaymentStatusLabel"
-        android:layout_marginBottom="16dp"/>
+        android:layout_marginBottom="26dp"/>
 
     <!-- Payment Type Label -->
     <TextView
         android:id="@+id/tvPaymentTypeLabel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Payment Type:"
+        android:text="@string/payment_type"
+        android:textStyle="bold"
         android:textSize="18sp"
         android:textColor="#333333"
         android:layout_below="@id/paymentStatusSpinner"
-        android:layout_marginBottom="8dp"/>
+        android:layout_marginBottom="12dp"/>
 
     <!-- Payment Type Spinner -->
     <Spinner
@@ -102,19 +106,20 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/tvPaymentTypeLabel"
-        android:layout_marginBottom="16dp"/>
+        android:layout_marginBottom="26dp"/>
 
     <!-- Generate PDF Button -->
     <Button
         android:id="@+id/btnGeneratePDF"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Generate PDF"
+        android:text="@string/generate_statement"
         android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="#FFFFFF"
         android:background="#2ECC71"
         android:layout_below="@id/paymentTypeSpinner"
+        android:layout_marginTop="72dp"
         android:layout_marginBottom="24dp"/>
 
 </RelativeLayout>

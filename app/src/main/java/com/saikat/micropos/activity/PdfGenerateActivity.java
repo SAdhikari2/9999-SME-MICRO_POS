@@ -1,4 +1,4 @@
-package com.saikat.micropos;
+package com.saikat.micropos.activity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -27,6 +27,8 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -39,6 +41,7 @@ import com.itextpdf.text.Phrase;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
+import com.saikat.micropos.R;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -66,7 +69,10 @@ public class PdfGenerateActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_generate_pdf);
 
-        mDatabase = FirebaseDatabase.getInstance().getReference().child("TransactionHistory").child("GKPOkFrxVeQhqt5NU4xBbmn5XCw1");
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        assert user != null;
+        mDatabase = FirebaseDatabase.getInstance().getReference().child("TransactionHistory").child(user.getUid());
 
         // Initialize views
         btnStartDate = findViewById(R.id.btnStartDate);
